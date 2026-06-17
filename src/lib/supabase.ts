@@ -28,6 +28,7 @@ export type ScoutingNote = {
   player_id: string
   match_date: string
   content: string
+  scouter: string | null
   created_at: string
   videos?: Video[]
 }
@@ -46,6 +47,7 @@ export type TeamScoutingNote = {
   team_id: string
   match_date: string
   content: string
+  scouter: string | null
   created_at: string
 }
 

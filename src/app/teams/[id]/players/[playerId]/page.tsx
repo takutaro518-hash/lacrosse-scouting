@@ -21,6 +21,7 @@ export default function PlayerPage() {
   const [showForm, setShowForm] = useState(false)
   const [matchDate, setMatchDate] = useState(new Date().toISOString().slice(0, 10))
   const [content, setContent] = useState('')
+  const [scouter, setScouter] = useState('')
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoTitle, setVideoTitle] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -51,6 +52,7 @@ export default function PlayerPage() {
       player_id: playerId,
       match_date: matchDate,
       content: content.trim(),
+      scouter: scouter.trim() || null,
     }).select().single()
 
     if (videoFile && noteData) {
@@ -68,6 +70,7 @@ export default function PlayerPage() {
     }
 
     setContent('')
+    setScouter('')
     setVideoFile(null)
     setVideoTitle('')
     setShowForm(false)
@@ -156,6 +159,15 @@ export default function PlayerPage() {
             />
           </div>
           <div>
+            <label className="text-xs text-gray-500 mb-1 block">スカウター名</label>
+            <input
+              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+              placeholder="例：山田太郎"
+              value={scouter}
+              onChange={e => setScouter(e.target.value)}
+            />
+          </div>
+          <div>
             <label className="text-xs text-gray-500 mb-1 block">特徴・メモ *</label>
             <textarea
               className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y"
@@ -226,6 +238,9 @@ export default function PlayerPage() {
                     <Trash2 size={16} />
                   </button>
                 </div>
+                {note.scouter && (
+                  <p className="text-xs text-gray-400 mb-1">スカウター：{note.scouter}</p>
+                )}
                 <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
                 {noteVideos.length > 0 && (
                   <div className="mt-4 flex flex-col gap-3">

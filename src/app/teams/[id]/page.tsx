@@ -38,6 +38,7 @@ export default function TeamPage() {
   const addVideoFileRef = useRef<HTMLInputElement>(null)
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10))
   const [noteContent, setNoteContent] = useState('')
+  const [noteScouter, setNoteScouter] = useState('')
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoTitle, setVideoTitle] = useState('')
   const [uploading, setUploading] = useState(false)
@@ -86,6 +87,7 @@ export default function TeamPage() {
       team_id: id,
       match_date: noteDate,
       content: noteContent.trim(),
+      scouter: noteScouter.trim() || null,
     }).select().single()
 
     if (videoFile && noteData) {
@@ -102,6 +104,7 @@ export default function TeamPage() {
     }
 
     setNoteContent('')
+    setNoteScouter('')
     setVideoFile(null)
     setVideoTitle('')
     setShowTeamNoteForm(false)
@@ -212,6 +215,15 @@ export default function TeamPage() {
               />
             </div>
             <div>
+              <label className="text-xs text-gray-500 mb-1 block">スカウター名</label>
+              <input
+                className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white w-full"
+                placeholder="例：山田太郎"
+                value={noteScouter}
+                onChange={e => setNoteScouter(e.target.value)}
+              />
+            </div>
+            <div>
               <label className="text-xs text-gray-500 mb-1 block">チーム特徴・戦術メモ *</label>
               <textarea
                 className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y bg-white"
@@ -298,7 +310,12 @@ export default function TeamPage() {
                       onChange={e => setEditingContent(e.target.value)}
                     />
                   ) : (
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                    <>
+                      {(note as any).scouter && (
+                        <p className="text-xs text-gray-400 mb-1">スカウター：{(note as any).scouter}</p>
+                      )}
+                      <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                    </>
                   )}
                   {noteVideos.length > 0 && (
                     <div className="mt-3 flex flex-col gap-2">
