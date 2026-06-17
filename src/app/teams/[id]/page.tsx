@@ -89,12 +89,18 @@ export default function TeamPage() {
     if (!noteContent.trim()) return
     setUploading(true)
 
-    const { data: noteData } = await supabase.from('team_scouting_notes').insert({
+    const { data: noteData, error: noteError } = await supabase.from('team_scouting_notes').insert({
       team_id: id,
       match_date: noteDate,
       content: noteContent.trim(),
       scouter: noteScouter.trim() || null,
     }).select().single()
+
+    if (noteError) {
+      alert('保存エラー: ' + noteError.message)
+      setUploading(false)
+      return
+    }
 
     if (videoFile && noteData) {
       const ext = videoFile.name.split('.').pop()
