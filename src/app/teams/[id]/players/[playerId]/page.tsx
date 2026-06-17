@@ -28,6 +28,13 @@ export default function PlayerPage() {
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [expandedVideos, setExpandedVideos] = useState<Set<string>>(new Set())
+  const [photoUploading, setPhotoUploading] = useState(false)
+  const photoRef = useRef<HTMLInputElement>(null)
+  const [showPlayVideoForm, setShowPlayVideoForm] = useState(false)
+  const [playVideoFile, setPlayVideoFile] = useState<File | null>(null)
+  const [playVideoTitle, setPlayVideoTitle] = useState('')
+  const [playVideoUploading, setPlayVideoUploading] = useState(false)
+  const playVideoRef = useRef<HTMLInputElement>(null)
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editingDate, setEditingDate] = useState('')
   const [editingContent, setEditingContent] = useState('')
@@ -102,6 +109,41 @@ export default function PlayerPage() {
     fetchData()
   }
 
+  async function uploadPhoto(file: File) {
+    setPhotoUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `photos/${playerId}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('scouting-media').upload(path, file)
+    if (!error) {
+      const { data } = supabase.storage.from('scouting-media').getPublicUrl(path)
+      await supabase.from('players').update({ photo_url: data.publicUrl }).eq('id', playerId)
+      fetchData()
+    }
+    setPhotoUploading(false)
+  }
+
+  async function addPlayVideo(e: React.FormEvent) {
+    e.preventDefault()
+    if (!playVideoFile) return
+    setPlayVideoUploading(true)
+    const ext = playVideoFile.name.split('.').pop()
+    const path = `videos/${playerId}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('scouting-media').upload(path, playVideoFile)
+    if (!error) {
+      await supabase.from('videos').insert({
+        player_id: playerId,
+        scouting_note_id: null,
+        title: playVideoTitle.trim() || null,
+        storage_path: path,
+      })
+    }
+    setPlayVideoFile(null)
+    setPlayVideoTitle('')
+    setShowPlayVideoForm(false)
+    setPlayVideoUploading(false)
+    fetchData()
+  }
+
   async function deleteNote(noteId: string) {
     if (!confirm('このノートを削除しますか？')) return
     await supabase.from('scouting_notes').delete().eq('id', noteId)
@@ -135,12 +177,28 @@ export default function PlayerPage() {
 
       {/* Player header */}
       <div className="bg-white rounded-xl shadow p-5 mb-6 flex items-center gap-4">
-        <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-          {player.photo_url ? (
-            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
-          ) : (
-            <User size={36} className="text-gray-400" />
-          )}
+        <div className="relative shrink-0">
+          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
+            {player.photo_url ? (
+              <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
+            ) : (
+              <User size={36} className="text-gray-400" />
+            )}
+          </div>
+          <button
+            onClick={() => photoRef.current?.click()}
+            disabled={photoUploading}
+            className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            <Pencil size={11} />
+          </button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={photoRef}
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) uploadPhoto(f) }}
+          />
         </div>
         <div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -337,9 +395,62 @@ export default function PlayerPage() {
         </div>
       )}
 
-      {unlinkedVideos.length > 0 && (
-        <div className="mt-8">
-          <h2 className="font-bold text-gray-700 text-lg mb-4">その他の動画</h2>
+      {/* プレー動画 */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-700 text-lg">プレー動画</h2>
+          <button
+            onClick={() => setShowPlayVideoForm(!showPlayVideoForm)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            <Plus size={16} />
+            動画を追加
+          </button>
+        </div>
+
+        {showPlayVideoForm && (
+          <form onSubmit={addPlayVideo} className="bg-white rounded-xl shadow p-5 mb-4 flex flex-col gap-3">
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">動画ファイル *</label>
+              <input
+                type="file"
+                accept="video/*"
+                ref={playVideoRef}
+                onChange={e => setPlayVideoFile(e.target.files?.[0] ?? null)}
+                className="text-sm"
+                required
+              />
+            </div>
+            {playVideoFile && (
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">タイトル（任意）</label>
+                <input
+                  className="border rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="例：シュートシーン、1on1"
+                  value={playVideoTitle}
+                  onChange={e => setPlayVideoTitle(e.target.value)}
+                />
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={!playVideoFile || playVideoUploading}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {playVideoUploading ? 'アップロード中...' : '保存'}
+              </button>
+              <button type="button" onClick={() => setShowPlayVideoForm(false)} className="px-4 py-2 rounded-lg text-sm border hover:bg-gray-50 transition">キャンセル</button>
+            </div>
+          </form>
+        )}
+
+        {unlinkedVideos.length === 0 ? (
+          <div className="text-center py-8 text-gray-400">
+            <VideoIcon size={32} className="mx-auto mb-2 opacity-30" />
+            <p className="text-sm">プレー動画がまだありません</p>
+          </div>
+        ) : (
           <div className="flex flex-col gap-3">
             {unlinkedVideos.map(v => (
               <div key={v.id} className="bg-white rounded-xl shadow overflow-hidden">
@@ -347,15 +458,14 @@ export default function PlayerPage() {
                 <video src={getVideoUrl(v.storage_path)} controls className="w-full max-h-72 bg-black" preload="metadata" />
                 <div className="flex justify-end px-4 pb-3">
                   <button onClick={() => deleteVideo(v)} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1 transition">
-                    <Trash2 size={12} />
-                    削除
+                    <Trash2 size={12} />削除
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
