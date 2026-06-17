@@ -31,6 +31,7 @@ export default function TeamPage() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editingDate, setEditingDate] = useState('')
   const [editingContent, setEditingContent] = useState('')
+  const [editingScouter, setEditingScouter] = useState('')
   const [addingVideoNoteId, setAddingVideoNoteId] = useState<string | null>(null)
   const [addVideoFile, setAddVideoFile] = useState<File | null>(null)
   const [addVideoTitle, setAddVideoTitle] = useState('')
@@ -116,6 +117,7 @@ export default function TeamPage() {
     setEditingNoteId(note.id)
     setEditingDate(note.match_date)
     setEditingContent(note.content)
+    setEditingScouter(note.scouter ?? '')
   }
 
   async function saveEditNote(noteId: string) {
@@ -123,6 +125,7 @@ export default function TeamPage() {
     await supabase.from('team_scouting_notes').update({
       match_date: editingDate,
       content: editingContent.trim(),
+      scouter: editingScouter.trim() || null,
     }).eq('id', noteId)
     setEditingNoteId(null)
     fetchData()
@@ -304,11 +307,19 @@ export default function TeamPage() {
                     </div>
                   </div>
                   {isEditing ? (
-                    <textarea
-                      className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y"
-                      value={editingContent}
-                      onChange={e => setEditingContent(e.target.value)}
-                    />
+                    <div className="flex flex-col gap-2">
+                      <input
+                        className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+                        placeholder="スカウター名"
+                        value={editingScouter}
+                        onChange={e => setEditingScouter(e.target.value)}
+                      />
+                      <textarea
+                        className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y"
+                        value={editingContent}
+                        onChange={e => setEditingContent(e.target.value)}
+                      />
+                    </div>
                   ) : (
                     <>
                       {(note as any).scouter && (

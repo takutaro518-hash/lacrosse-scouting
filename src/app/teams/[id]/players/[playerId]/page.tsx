@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase, Player, ScoutingNote, Video } from '@/lib/supabase'
-import { ChevronLeft, Plus, Video as VideoIcon, FileText, Trash2, User } from 'lucide-react'
+import { ChevronLeft, Plus, Video as VideoIcon, FileText, Trash2, User, Pencil, Check, X } from 'lucide-react'
 
 const POSITION_COLORS: Record<string, string> = {
   AT: 'bg-red-100 text-red-700',
@@ -26,6 +26,10 @@ export default function PlayerPage() {
   const [videoTitle, setVideoTitle] = useState('')
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const [editingDate, setEditingDate] = useState('')
+  const [editingContent, setEditingContent] = useState('')
+  const [editingScouter, setEditingScouter] = useState('')
 
   useEffect(() => {
     fetchData()
@@ -75,6 +79,24 @@ export default function PlayerPage() {
     setVideoTitle('')
     setShowForm(false)
     setUploading(false)
+    fetchData()
+  }
+
+  function startEditNote(note: ScoutingNote) {
+    setEditingNoteId(note.id)
+    setEditingDate(note.match_date)
+    setEditingContent(note.content)
+    setEditingScouter(note.scouter ?? '')
+  }
+
+  async function saveEditNote(noteId: string) {
+    if (!editingContent.trim()) return
+    await supabase.from('scouting_notes').update({
+      match_date: editingDate,
+      content: editingContent.trim(),
+      scouter: editingScouter.trim() || null,
+    }).eq('id', noteId)
+    setEditingNoteId(null)
     fetchData()
   }
 
@@ -221,27 +243,61 @@ export default function PlayerPage() {
               <div key={note.id} className="bg-white rounded-xl shadow p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded">
-                      {note.match_date}
-                    </span>
-                    {noteVideos.length > 0 && (
+                    {editingNoteId === note.id ? (
+                      <input
+                        type="date"
+                        className="border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        value={editingDate}
+                        onChange={e => setEditingDate(e.target.value)}
+                      />
+                    ) : (
+                      <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded">
+                        {note.match_date}
+                      </span>
+                    )}
+                    {noteVideos.length > 0 && editingNoteId !== note.id && (
                       <span className="flex items-center gap-1 text-xs text-gray-500">
                         <VideoIcon size={12} />
                         {noteVideos.length}本
                       </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => deleteNote(note.id)}
-                    className="text-gray-300 hover:text-red-400 transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {editingNoteId === note.id ? (
+                      <>
+                        <button onClick={() => saveEditNote(note.id)} className="text-green-500 hover:text-green-600 transition"><Check size={16} /></button>
+                        <button onClick={() => setEditingNoteId(null)} className="text-gray-400 hover:text-gray-600 transition"><X size={16} /></button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => startEditNote(note)} className="text-gray-300 hover:text-blue-400 transition"><Pencil size={15} /></button>
+                        <button onClick={() => deleteNote(note.id)} className="text-gray-300 hover:text-red-400 transition"><Trash2 size={16} /></button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                {note.scouter && (
-                  <p className="text-xs text-gray-400 mb-1">スカウター：{note.scouter}</p>
+                {editingNoteId === note.id ? (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+                      placeholder="スカウター名"
+                      value={editingScouter}
+                      onChange={e => setEditingScouter(e.target.value)}
+                    />
+                    <textarea
+                      className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y"
+                      value={editingContent}
+                      onChange={e => setEditingContent(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {note.scouter && (
+                      <p className="text-xs text-gray-400 mb-1">スカウター：{note.scouter}</p>
+                    )}
+                    <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                  </>
                 )}
-                <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
                 {noteVideos.length > 0 && (
                   <div className="mt-4 flex flex-col gap-3">
                     {noteVideos.map(v => (
