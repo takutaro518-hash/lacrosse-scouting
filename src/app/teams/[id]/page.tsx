@@ -31,6 +31,11 @@ export default function TeamPage() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editingDate, setEditingDate] = useState('')
   const [editingContent, setEditingContent] = useState('')
+  const [addingVideoNoteId, setAddingVideoNoteId] = useState<string | null>(null)
+  const [addVideoFile, setAddVideoFile] = useState<File | null>(null)
+  const [addVideoTitle, setAddVideoTitle] = useState('')
+  const [addingVideo, setAddingVideo] = useState(false)
+  const addVideoFileRef = useRef<HTMLInputElement>(null)
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10))
   const [noteContent, setNoteContent] = useState('')
   const [videoFile, setVideoFile] = useState<File | null>(null)
@@ -117,6 +122,26 @@ export default function TeamPage() {
       content: editingContent.trim(),
     }).eq('id', noteId)
     setEditingNoteId(null)
+    fetchData()
+  }
+
+  async function addVideoToNote(noteId: string) {
+    if (!addVideoFile) return
+    setAddingVideo(true)
+    const ext = addVideoFile.name.split('.').pop()
+    const path = `team-videos/${id}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('scouting-media').upload(path, addVideoFile)
+    if (!error) {
+      await supabase.from('team_scouting_videos').insert({
+        team_scouting_note_id: noteId,
+        title: addVideoTitle.trim() || null,
+        storage_path: path,
+      })
+    }
+    setAddVideoFile(null)
+    setAddVideoTitle('')
+    setAddingVideoNoteId(null)
+    setAddingVideo(false)
     fetchData()
   }
 
@@ -290,6 +315,48 @@ export default function TeamPage() {
                         </div>
                       ))}
                     </div>
+                  )}
+                  {addingVideoNoteId === note.id ? (
+                    <div className="mt-3 bg-gray-50 rounded-lg p-3 flex flex-col gap-2">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        ref={addVideoFileRef}
+                        onChange={e => setAddVideoFile(e.target.files?.[0] ?? null)}
+                        className="text-sm"
+                      />
+                      {addVideoFile && (
+                        <input
+                          className="border rounded-lg px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          placeholder="動画タイトル（任意）"
+                          value={addVideoTitle}
+                          onChange={e => setAddVideoTitle(e.target.value)}
+                        />
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => addVideoToNote(note.id)}
+                          disabled={!addVideoFile || addingVideo}
+                          className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-700 transition disabled:opacity-50"
+                        >
+                          {addingVideo ? 'アップロード中...' : '追加'}
+                        </button>
+                        <button
+                          onClick={() => { setAddingVideoNoteId(null); setAddVideoFile(null); setAddVideoTitle('') }}
+                          className="px-3 py-1.5 rounded-lg text-xs border hover:bg-gray-100 transition"
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAddingVideoNoteId(note.id)}
+                      className="mt-3 flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500 transition"
+                    >
+                      <Plus size={13} />
+                      動画を追加
+                    </button>
                   )}
                 </div>
               )
