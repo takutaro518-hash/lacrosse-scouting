@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { supabase, Team, Player, TeamScoutingNote, TeamScoutingVideo } from '@/lib/supabase'
 import { Plus, ChevronLeft, User, FileText, Trash2, Shield, Pencil, Check, X, Video as VideoIcon } from 'lucide-react'
 
-const POSITIONS = ['AT', 'MF', 'DF', 'GK']
+const POSITIONS = ['AT', 'MF', 'SSDM', 'DF', 'G']
 
 const POSITION_COLORS: Record<string, string> = {
   AT: 'bg-red-100 text-red-700',
   MF: 'bg-green-100 text-green-700',
+  SSDM: 'bg-purple-100 text-purple-700',
   DF: 'bg-blue-100 text-blue-700',
-  GK: 'bg-yellow-100 text-yellow-700',
+  G: 'bg-yellow-100 text-yellow-700',
 }
 
 export default function TeamPage() {
