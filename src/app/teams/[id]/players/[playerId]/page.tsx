@@ -176,21 +176,21 @@ export default function PlayerPage() {
       </Link>
 
       {/* Player header */}
-      <div className="bg-white rounded-xl shadow p-5 mb-6 flex items-center gap-4">
-        <div className="relative shrink-0">
-          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-            {player.photo_url ? (
-              <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
-            ) : (
-              <User size={36} className="text-gray-400" />
-            )}
-          </div>
+      <div className="bg-white rounded-xl shadow mb-6 overflow-hidden">
+        {/* 写真エリア */}
+        <div className="relative w-full h-56 bg-gray-100 flex items-center justify-center">
+          {player.photo_url ? (
+            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover object-top" />
+          ) : (
+            <User size={72} className="text-gray-300" />
+          )}
           <button
             onClick={() => photoRef.current?.click()}
             disabled={photoUploading}
-            className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-blue-700 transition disabled:opacity-50"
+            className="absolute bottom-3 right-3 bg-blue-600 text-white rounded-full px-3 py-1.5 text-xs flex items-center gap-1 hover:bg-blue-700 transition disabled:opacity-50 shadow"
           >
             <Pencil size={11} />
+            {player.photo_url ? '写真を変更' : '写真を追加'}
           </button>
           <input
             type="file"
@@ -200,7 +200,8 @@ export default function PlayerPage() {
             onChange={e => { const f = e.target.files?.[0]; if (f) uploadPhoto(f) }}
           />
         </div>
-        <div>
+        {/* 選手情報 */}
+        <div className="p-4">
           <div className="flex items-center gap-2 flex-wrap">
             {player.number && <span className="text-blue-500 font-bold text-lg">#{player.number}</span>}
             <h1 className="text-2xl font-bold text-gray-800">{player.name}</h1>
