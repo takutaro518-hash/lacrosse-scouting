@@ -106,12 +106,15 @@ export default function TeamPage() {
       const ext = videoFile.name.split('.').pop()
       const path = `team-videos/${id}/${Date.now()}.${ext}`
       const { error: uploadError } = await supabase.storage.from('scouting-media').upload(path, videoFile)
-      if (!uploadError) {
-        await supabase.from('team_scouting_videos').insert({
+      if (uploadError) {
+        alert('動画アップロードエラー: ' + uploadError.message)
+      } else {
+        const { error: videoInsertError } = await supabase.from('team_scouting_videos').insert({
           team_scouting_note_id: noteData.id,
           title: videoTitle.trim() || null,
           storage_path: path,
         })
+        if (videoInsertError) alert('動画保存エラー: ' + videoInsertError.message)
       }
     }
 
@@ -148,12 +151,15 @@ export default function TeamPage() {
     const ext = addVideoFile.name.split('.').pop()
     const path = `team-videos/${id}/${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('scouting-media').upload(path, addVideoFile)
-    if (!error) {
-      await supabase.from('team_scouting_videos').insert({
+    if (error) {
+      alert('動画アップロードエラー: ' + error.message)
+    } else {
+      const { error: insertError } = await supabase.from('team_scouting_videos').insert({
         team_scouting_note_id: noteId,
         title: addVideoTitle.trim() || null,
         storage_path: path,
       })
+      if (insertError) alert('動画保存エラー: ' + insertError.message)
     }
     setAddVideoFile(null)
     setAddVideoTitle('')
