@@ -35,6 +35,9 @@ export default function TeamPage() {
   const [editingScouter, setEditingScouter] = useState('')
   const [expandedVideos, setExpandedVideos] = useState<Set<string>>(new Set())
   const [addingVideoNoteId, setAddingVideoNoteId] = useState<string | null>(null)
+  const [summary, setSummary] = useState('')
+  const [summarizing, setSummarizing] = useState(false)
+  const [showSummary, setShowSummary] = useState(false)
   const [addVideoFile, setAddVideoFile] = useState<File | null>(null)
   const [addVideoTitle, setAddVideoTitle] = useState('')
   const [addingVideo, setAddingVideo] = useState(false)
@@ -159,6 +162,21 @@ export default function TeamPage() {
     fetchData()
   }
 
+  async function generateSummary() {
+    if (teamNotes.length === 0) return
+    setSummarizing(true)
+    setShowSummary(true)
+    setSummary('')
+    const res = await fetch('/api/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: teamNotes }),
+    })
+    const data = await res.json()
+    setSummary(data.summary ?? 'エラーが発生しました')
+    setSummarizing(false)
+  }
+
   async function deleteTeamVideo(video: TeamScoutingVideo) {
     if (!confirm('この動画を削除しますか？')) return
     await supabase.storage.from('scouting-media').remove([video.storage_path])
@@ -198,14 +216,39 @@ export default function TeamPage() {
             <Shield size={18} className="text-blue-600" />
             <h2 className="font-bold text-gray-700 text-lg">チームスカウティング</h2>
           </div>
-          <button
-            onClick={() => setShowTeamNoteForm(!showTeamNoteForm)}
-            className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition text-sm"
-          >
-            <Plus size={15} />
-            メモを追加
-          </button>
+          <div className="flex items-center gap-2">
+            {teamNotes.length > 0 && (
+              <button
+                onClick={generateSummary}
+                disabled={summarizing}
+                className="flex items-center gap-1 bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700 transition text-sm disabled:opacity-50"
+              >
+                ✨ AI要約
+              </button>
+            )}
+            <button
+              onClick={() => setShowTeamNoteForm(!showTeamNoteForm)}
+              className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition text-sm"
+            >
+              <Plus size={15} />
+              メモを追加
+            </button>
+          </div>
         </div>
+
+        {showSummary && (
+          <div className="mb-5 bg-purple-50 border border-purple-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-purple-700">✨ AI要約</span>
+              <button onClick={() => setShowSummary(false)} className="text-gray-400 hover:text-gray-600 transition"><X size={15} /></button>
+            </div>
+            {summarizing ? (
+              <p className="text-sm text-purple-400 animate-pulse">AIが分析中...</p>
+            ) : (
+              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{summary}</p>
+            )}
+          </div>
+        )}
 
         {showTeamNoteForm && (
           <form onSubmit={addTeamNote} className="flex flex-col gap-3 mb-5 bg-blue-50 rounded-lg p-4">
