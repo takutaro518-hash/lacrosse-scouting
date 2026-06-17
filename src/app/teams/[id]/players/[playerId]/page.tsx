@@ -180,7 +180,7 @@ export default function PlayerPage() {
         {/* 写真エリア */}
         <div className="relative w-full h-56 bg-gray-100 flex items-center justify-center">
           {player.photo_url ? (
-            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover object-top" />
+            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover object-center" />
           ) : (
             <User size={72} className="text-gray-300" />
           )}
