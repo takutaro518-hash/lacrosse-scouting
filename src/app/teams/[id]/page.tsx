@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase, Team, Player, TeamScoutingNote, TeamScoutingVideo } from '@/lib/supabase'
-import { Plus, ChevronLeft, User, FileText, Trash2, Shield } from 'lucide-react'
+import { Plus, ChevronLeft, User, FileText, Trash2, Shield, Pencil, Check, X } from 'lucide-react'
 
 const POSITIONS = ['AT', 'MF', 'DF', 'GK']
 
@@ -28,6 +28,9 @@ export default function TeamPage() {
   const [position, setPosition] = useState('')
 
   const [showTeamNoteForm, setShowTeamNoteForm] = useState(false)
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const [editingDate, setEditingDate] = useState('')
+  const [editingContent, setEditingContent] = useState('')
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10))
   const [noteContent, setNoteContent] = useState('')
   const [videoFile, setVideoFile] = useState<File | null>(null)
@@ -98,6 +101,22 @@ export default function TeamPage() {
     setVideoTitle('')
     setShowTeamNoteForm(false)
     setUploading(false)
+    fetchData()
+  }
+
+  function startEditNote(note: TeamScoutingNote) {
+    setEditingNoteId(note.id)
+    setEditingDate(note.match_date)
+    setEditingContent(note.content)
+  }
+
+  async function saveEditNote(noteId: string) {
+    if (!editingContent.trim()) return
+    await supabase.from('team_scouting_notes').update({
+      match_date: editingDate,
+      content: editingContent.trim(),
+    }).eq('id', noteId)
+    setEditingNoteId(null)
     fetchData()
   }
 
@@ -217,17 +236,45 @@ export default function TeamPage() {
           <div className="flex flex-col gap-3">
             {teamNotes.map(note => {
               const noteVideos = teamVideos.filter(v => v.team_scouting_note_id === note.id)
+              const isEditing = editingNoteId === note.id
               return (
                 <div key={note.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded">
-                      {note.match_date}
-                    </span>
-                    <button onClick={() => deleteTeamNote(note.id)} className="text-gray-300 hover:text-red-400 transition">
-                      <Trash2 size={15} />
-                    </button>
+                    {isEditing ? (
+                      <input
+                        type="date"
+                        className="border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        value={editingDate}
+                        onChange={e => setEditingDate(e.target.value)}
+                      />
+                    ) : (
+                      <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-1 rounded">
+                        {note.match_date}
+                      </span>
+                    )}
+                    <div className="flex items-center gap-2">
+                      {isEditing ? (
+                        <>
+                          <button onClick={() => saveEditNote(note.id)} className="text-green-500 hover:text-green-600 transition"><Check size={16} /></button>
+                          <button onClick={() => setEditingNoteId(null)} className="text-gray-400 hover:text-gray-600 transition"><X size={16} /></button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => startEditNote(note)} className="text-gray-300 hover:text-blue-400 transition"><Pencil size={15} /></button>
+                          <button onClick={() => deleteTeamNote(note.id)} className="text-gray-300 hover:text-red-400 transition"><Trash2 size={15} /></button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                  {isEditing ? (
+                    <textarea
+                      className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full min-h-[100px] resize-y"
+                      value={editingContent}
+                      onChange={e => setEditingContent(e.target.value)}
+                    />
+                  ) : (
+                    <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                  )}
                   {noteVideos.length > 0 && (
                     <div className="mt-3 flex flex-col gap-2">
                       {noteVideos.map(v => (
