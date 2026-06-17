@@ -26,6 +26,7 @@ export default function PlayerPage() {
   const [videoTitle, setVideoTitle] = useState('')
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [expandedVideos, setExpandedVideos] = useState<Set<string>>(new Set())
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
   const [editingDate, setEditingDate] = useState('')
   const [editingContent, setEditingContent] = useState('')
@@ -299,24 +300,34 @@ export default function PlayerPage() {
                   </>
                 )}
                 {noteVideos.length > 0 && (
-                  <div className="mt-4 flex flex-col gap-3">
-                    {noteVideos.map(v => (
-                      <div key={v.id} className="bg-gray-50 rounded-lg overflow-hidden">
-                        {v.title && <div className="text-xs font-medium text-gray-600 px-3 pt-2">{v.title}</div>}
-                        <video
-                          src={getVideoUrl(v.storage_path)}
-                          controls
-                          className="w-full max-h-72 bg-black"
-                          preload="metadata"
-                        />
-                        <div className="flex justify-end px-3 pb-2">
-                          <button onClick={() => deleteVideo(v)} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1 transition">
-                            <Trash2 size={12} />
-                            削除
-                          </button>
-                        </div>
+                  <div className="mt-3">
+                    <button
+                      onClick={() => setExpandedVideos(prev => {
+                        const next = new Set(prev)
+                        next.has(note.id) ? next.delete(note.id) : next.add(note.id)
+                        return next
+                      })}
+                      className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-700 transition"
+                    >
+                      <VideoIcon size={13} />
+                      動画 {noteVideos.length}本
+                      <span>{expandedVideos.has(note.id) ? '▲' : '▼'}</span>
+                    </button>
+                    {expandedVideos.has(note.id) && (
+                      <div className="mt-2 flex flex-col gap-3">
+                        {noteVideos.map(v => (
+                          <div key={v.id} className="bg-gray-50 rounded-lg overflow-hidden">
+                            {v.title && <div className="text-xs font-medium text-gray-600 px-3 pt-2">{v.title}</div>}
+                            <video src={getVideoUrl(v.storage_path)} controls className="w-full max-h-72 bg-black" preload="metadata" />
+                            <div className="flex justify-end px-3 pb-2">
+                              <button onClick={() => deleteVideo(v)} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1 transition">
+                                <Trash2 size={12} />削除
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
