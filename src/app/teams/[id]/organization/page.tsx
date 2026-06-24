@@ -35,6 +35,9 @@ export default function OrganizationPage() {
   const [summarizing, setSummarizing] = useState(false)
   const [showSummary, setShowSummary] = useState(false)
 
+  const [categorySummaries, setCategorySummaries] = useState<Record<string, string>>({})
+  const [summarizingCategory, setSummarizingCategory] = useState<string | null>(null)
+
   const [addVideoFile, setAddVideoFile] = useState<File | null>(null)
   const [addVideoTitle, setAddVideoTitle] = useState('')
   const [addingVideo, setAddingVideo] = useState(false)
@@ -133,6 +136,16 @@ export default function OrganizationPage() {
     setSummary(data.summary ?? 'エラーが発生しました'); setSummarizing(false)
   }
 
+  async function generateCategorySummary(category: string, catNotes: TeamScoutingNote[]) {
+    if (catNotes.length === 0) return
+    setSummarizingCategory(category)
+    setCategorySummaries(prev => ({ ...prev, [category]: '' }))
+    const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: catNotes, category }) })
+    const data = await res.json()
+    setCategorySummaries(prev => ({ ...prev, [category]: data.summary ?? 'エラーが発生しました' }))
+    setSummarizingCategory(null)
+  }
+
   function getVideoUrl(path: string) {
     return supabase.storage.from('scouting-media').getPublicUrl(path).data.publicUrl
   }
@@ -195,14 +208,36 @@ export default function OrganizationPage() {
                   <span className="text-xs text-gray-400">{catNotes.length}件</span>
                   {isCollapsed ? <ChevronDown size={14} className="text-gray-400 ml-auto" /> : <ChevronUp size={14} className="text-gray-400 ml-auto" />}
                 </button>
-                <button onClick={() => { setAddingCategory(isAdding ? null : key); setNoteContent(''); setNoteScouter(''); setVideoFile(null); setVideoTitle('') }}
-                  className="ml-3 flex items-center gap-1 bg-white/80 hover:bg-white text-gray-600 px-2 py-1 rounded-lg text-xs transition shadow-sm">
-                  <Plus size={12} />追加
-                </button>
+                <div className="ml-3 flex items-center gap-2">
+                  {catNotes.length > 0 && (
+                    <button onClick={() => generateCategorySummary(key, catNotes)} disabled={summarizingCategory === key}
+                      className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded-lg text-xs transition shadow-sm disabled:opacity-50">
+                      ✨ AI要約
+                    </button>
+                  )}
+                  <button onClick={() => { setAddingCategory(isAdding ? null : key); setNoteContent(''); setNoteScouter(''); setVideoFile(null); setVideoTitle('') }}
+                    className="flex items-center gap-1 bg-white/80 hover:bg-white text-gray-600 px-2 py-1 rounded-lg text-xs transition shadow-sm">
+                    <Plus size={12} />追加
+                  </button>
+                </div>
               </div>
 
               {!isCollapsed && (
                 <div className="px-4 py-3 flex flex-col gap-3">
+                  {(summarizingCategory === key || categorySummaries[key] !== undefined) && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-purple-700">✨ {key} の要約</span>
+                        {categorySummaries[key] !== undefined && summarizingCategory !== key && (
+                          <button onClick={() => setCategorySummaries(prev => { const n = { ...prev }; delete n[key]; return n })}
+                            className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
+                        )}
+                      </div>
+                      {summarizingCategory === key
+                        ? <p className="text-sm text-purple-400 animate-pulse">AIが分析中...</p>
+                        : <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{categorySummaries[key]}</p>}
+                    </div>
+                  )}
                   {isAdding && (
                     <form onSubmit={e => addTeamNote(e, key)} className="flex flex-col gap-3 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                       <div className="flex gap-2">
