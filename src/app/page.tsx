@@ -12,8 +12,8 @@ export default function HomePage() {
   return (
     <div className="min-h-[78vh] flex flex-col justify-center">
       <div className="mb-10 text-center">
-        <p className="text-xs tracking-[0.4em] text-gray-400 uppercase mb-2">Select Your Team</p>
-        <h1 className="font-mincho text-3xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>チームを選択</h1>
+        <p className="text-xs tracking-[0.4em] text-white/40 uppercase mb-2">Select Your Team</p>
+        <h1 className="font-mincho text-3xl font-bold tracking-wide text-white">チームを選択</h1>
       </div>
 
       <div className="flex flex-col gap-3 max-w-md mx-auto w-full">
@@ -21,11 +21,11 @@ export default function HomePage() {
           <Link
             key={group.key}
             href={`/groups/${group.key}`}
-            className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
-            style={{ background: '#0d1b4b' }}
+            className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 border border-white/10"
+            style={{ background: '#16224d' }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-transparent" />
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20 rounded-l-full" />
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/30 rounded-l-full" />
             <div className="relative flex items-center justify-between px-7 py-5">
               <div>
                 <div className="font-mincho text-xl font-bold tracking-[0.2em] text-white">{group.label}</div>

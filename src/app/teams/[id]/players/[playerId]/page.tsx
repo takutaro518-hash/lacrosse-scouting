@@ -162,7 +162,7 @@ export default function PlayerPage() {
     return data.publicUrl
   }
 
-  if (loading) return <div className="text-center py-12 text-gray-400">読み込み中...</div>
+  if (loading) return <div className="text-center py-12 text-white/40">読み込み中...</div>
   if (!player) return <div className="text-center py-12 text-red-400">選手が見つかりません</div>
 
   const videosForNote = (noteId: string) => videos.filter(v => v.scouting_note_id === noteId)
@@ -170,7 +170,7 @@ export default function PlayerPage() {
 
   return (
     <div>
-      <Link href={`/teams/${teamId}/players`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
+      <Link href={`/teams/${teamId}/players`} className="flex items-center gap-1 text-sm text-white/50 hover:text-white mb-4 transition">
         <ChevronLeft size={16} />
         選手一覧に戻る
       </Link>
@@ -218,7 +218,7 @@ export default function PlayerPage() {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-gray-700 text-lg">スカウティングノート</h2>
+        <h2 className="font-mincho font-bold text-white text-lg tracking-wide">スカウティングノート</h2>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
@@ -292,7 +292,7 @@ export default function PlayerPage() {
       )}
 
       {notes.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-white/50">
           <FileText size={40} className="mx-auto mb-3 opacity-30" />
           <p>スカウティングノートがまだありません</p>
         </div>
@@ -399,7 +399,7 @@ export default function PlayerPage() {
       {/* プレー動画 */}
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-700 text-lg">プレー動画</h2>
+          <h2 className="font-mincho font-bold text-white text-lg tracking-wide">プレー動画</h2>
           <button
             onClick={() => setShowPlayVideoForm(!showPlayVideoForm)}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
@@ -447,7 +447,7 @@ export default function PlayerPage() {
         )}
 
         {unlinkedVideos.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
+          <div className="text-center py-8 text-white/50">
             <VideoIcon size={32} className="mx-auto mb-2 opacity-30" />
             <p className="text-sm">プレー動画がまだありません</p>
           </div>

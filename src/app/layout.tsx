@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className={`${mincho.variable} ${sans.variable}`}>
-      <body className="min-h-screen" style={{ background: '#f4f5f7' }}>
-        <header style={{ background: '#0d1b4b' }} className="shadow-lg">
+      <body className="min-h-screen" style={{ background: '#0a1430' }}>
+        <header style={{ background: '#0d1b4b' }} className="shadow-lg border-b border-white/10">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <img src="/ku-logo.png" alt="KU" className="h-9 w-auto drop-shadow" />
