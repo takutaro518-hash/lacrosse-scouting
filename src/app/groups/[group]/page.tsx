@@ -59,20 +59,20 @@ export default function GroupPage() {
 
   return (
     <div>
-      <Link href="/" className="flex items-center gap-1 text-xs tracking-wider text-white/50 hover:text-white mb-6 transition uppercase">
+      <Link href="/" className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
         <ChevronLeft size={14} />
         Team Select
       </Link>
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-[10px] tracking-[0.3em] text-white/40 uppercase mb-1">Scouting</p>
-          <h1 className="font-mincho text-2xl font-bold tracking-wide text-white">{label}　相手チーム一覧</h1>
+          <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">Scouting</p>
+          <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>{label}　相手チーム一覧</h1>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl hover:opacity-90 transition text-sm font-medium shadow border border-white/15"
-          style={{ background: '#16224d' }}
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl hover:opacity-90 transition text-sm font-medium shadow"
+          style={{ background: '#0d1b4b' }}
         >
           <Plus size={16} />
           チームを追加
@@ -103,9 +103,9 @@ export default function GroupPage() {
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-white/40">読み込み中...</div>
+        <div className="text-center py-12 text-gray-400">読み込み中...</div>
       ) : teams.length === 0 ? (
-        <div className="text-center py-16 text-white/50">
+        <div className="text-center py-16 text-gray-400">
           <div className="text-5xl mb-4">🥍</div>
           <p>チームがまだ登録されていません</p>
           <p className="text-sm mt-1">「チームを追加」から登録してください</p>

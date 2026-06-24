@@ -145,18 +145,18 @@ export default function OrganizationPage() {
     })
   }
 
-  if (loading) return <div className="text-center py-12 text-white/40">読み込み中...</div>
+  if (loading) return <div className="text-center py-12 text-gray-400">読み込み中...</div>
   if (!team) return <div className="text-center py-12 text-red-400">チームが見つかりません</div>
 
   return (
     <div>
-      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-white/50 hover:text-white mb-6 transition uppercase">
+      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
         <ChevronLeft size={14} />Menu
       </Link>
 
       <div className="mb-6">
-        <p className="text-[10px] tracking-[0.3em] text-white/40 uppercase mb-1">{team.name}</p>
-        <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2 text-white">
+        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name}</p>
+        <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2" style={{ color: '#0d1b4b' }}>
           <Shield size={22} />組織スカウティング
         </h1>
       </div>

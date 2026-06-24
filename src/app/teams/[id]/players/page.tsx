@@ -48,25 +48,25 @@ export default function PlayersListPage() {
   const playersByPosition = POSITIONS.map(pos => ({ pos, players: players.filter(p => p.position === pos) }))
     .concat([{ pos: 'その他', players: players.filter(p => !p.position || !POSITIONS.includes(p.position)) }])
 
-  if (loading) return <div className="text-center py-12 text-white/40">読み込み中...</div>
+  if (loading) return <div className="text-center py-12 text-gray-400">読み込み中...</div>
   if (!team) return <div className="text-center py-12 text-red-400">チームが見つかりません</div>
 
   return (
     <div>
-      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-white/50 hover:text-white mb-6 transition uppercase">
+      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
         <ChevronLeft size={14} />Menu
       </Link>
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-[10px] tracking-[0.3em] text-white/40 uppercase mb-1">{team.name}</p>
-          <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2 text-white">
+          <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name}</p>
+          <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2" style={{ color: '#0d1b4b' }}>
             <Users size={22} />個人スカウティング
           </h1>
         </div>
         <button onClick={() => setShowPlayerForm(!showPlayerForm)}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl hover:opacity-90 transition text-sm font-medium shadow shrink-0 border border-white/15"
-          style={{ background: '#16224d' }}>
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl hover:opacity-90 transition text-sm font-medium shadow shrink-0"
+          style={{ background: '#0d1b4b' }}>
           <Plus size={16} />選手を追加
         </button>
       </div>
@@ -93,7 +93,7 @@ export default function PlayersListPage() {
       )}
 
       {players.length === 0 ? (
-        <div className="text-center py-16 text-white/50">
+        <div className="text-center py-16 text-gray-400">
           <User size={48} className="mx-auto mb-3 opacity-30" />
           <p>選手がまだ登録されていません</p>
         </div>
@@ -105,7 +105,7 @@ export default function PlayersListPage() {
               <div key={pos}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`text-xs font-bold px-2 py-1 rounded ${POSITION_COLORS[pos] ?? 'bg-gray-100 text-gray-600'}`}>{pos}</span>
-                  <span className="text-sm text-white/50">{group.length}人</span>
+                  <span className="text-sm text-gray-400">{group.length}人</span>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {group.map(player => (

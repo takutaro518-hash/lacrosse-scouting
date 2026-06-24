@@ -16,21 +16,21 @@ export default function TeamBranchPage() {
     })
   }, [id])
 
-  if (loading) return <div className="text-center py-12 text-white/40">読み込み中...</div>
+  if (loading) return <div className="text-center py-12 text-gray-400">読み込み中...</div>
   if (!team) return <div className="text-center py-12 text-red-400">チームが見つかりません</div>
 
   const backHref = (team as any).group_name ? `/groups/${(team as any).group_name}` : '/'
 
   return (
     <div>
-      <Link href={backHref} className="flex items-center gap-1 text-xs tracking-wider text-white/50 hover:text-white mb-6 transition uppercase">
+      <Link href={backHref} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
         <ChevronLeft size={14} />Team List
       </Link>
 
       <div className="mb-8">
-        <p className="text-[10px] tracking-[0.3em] text-white/40 uppercase mb-1">Scouting Menu</p>
-        <h1 className="font-mincho text-2xl font-bold tracking-wide text-white">{team.name}</h1>
-        {team.prefecture && <p className="text-sm text-white/50 mt-1">{team.prefecture}</p>}
+        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">Scouting Menu</p>
+        <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>{team.name}</h1>
+        {team.prefecture && <p className="text-sm text-gray-500 mt-1">{team.prefecture}</p>}
       </div>
 
       <div className="flex flex-col gap-4 max-w-2xl">
