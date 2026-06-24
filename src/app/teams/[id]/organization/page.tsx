@@ -131,18 +131,27 @@ export default function OrganizationPage() {
   async function generateSummary() {
     if (teamNotes.length === 0) return
     setSummarizing(true); setShowSummary(true); setSummary('')
-    const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: teamNotes }) })
-    const data = await res.json()
-    setSummary(data.summary ?? 'エラーが発生しました'); setSummarizing(false)
+    try {
+      const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: teamNotes }) })
+      const data = await res.json()
+      setSummary(data.summary ?? '⚠️ エラーが発生しました')
+    } catch {
+      setSummary('⚠️ 通信エラーが発生しました')
+    }
+    setSummarizing(false)
   }
 
   async function generateCategorySummary(category: string, catNotes: TeamScoutingNote[]) {
     if (catNotes.length === 0) return
     setSummarizingCategory(category)
     setCategorySummaries(prev => ({ ...prev, [category]: '' }))
-    const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: catNotes, category }) })
-    const data = await res.json()
-    setCategorySummaries(prev => ({ ...prev, [category]: data.summary ?? 'エラーが発生しました' }))
+    try {
+      const res = await fetch('/api/summarize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notes: catNotes, category }) })
+      const data = await res.json()
+      setCategorySummaries(prev => ({ ...prev, [category]: data.summary ?? '⚠️ エラーが発生しました' }))
+    } catch {
+      setCategorySummaries(prev => ({ ...prev, [category]: '⚠️ 通信エラーが発生しました' }))
+    }
     setSummarizingCategory(null)
   }
 

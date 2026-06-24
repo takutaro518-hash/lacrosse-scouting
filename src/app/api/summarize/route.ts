@@ -57,12 +57,19 @@ ${notesText}
 
 ## オンボール・オフボールの観点`
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const summary = message.content[0].type === 'text' ? message.content[0].text : ''
-  return NextResponse.json({ summary })
+  try {
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const summary = message.content[0].type === 'text' ? message.content[0].text : ''
+    return NextResponse.json({ summary })
+  } catch (e: any) {
+    const msg = e?.error?.error?.message || e?.message || 'AI要約に失敗しました'
+    let friendly = msg
+    if (msg.includes('credit balance')) friendly = 'AIのクレジット残高が不足しています。Anthropicのコンソールでクレジットを追加してください。'
+    else if (msg.includes('rate limit')) friendly = 'AIのリクエストが混み合っています。少し待って再度お試しください。'
+    return NextResponse.json({ summary: `⚠️ ${friendly}` })
+  }
 }
