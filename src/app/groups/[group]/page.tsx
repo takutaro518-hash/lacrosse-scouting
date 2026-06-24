@@ -59,24 +59,28 @@ export default function GroupPage() {
 
   return (
     <div>
-      <Link href="/" className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
-        <ChevronLeft size={16} />
-        チーム選択に戻る
+      <Link href="/" className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
+        <ChevronLeft size={14} />
+        Team Select
       </Link>
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{label}　相手チーム一覧</h1>
+        <div>
+          <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">Scouting</p>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#0d1b4b' }}>{label}　相手チーム一覧</h1>
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl hover:opacity-90 transition text-sm font-medium shadow"
+          style={{ background: '#0d1b4b' }}
         >
-          <Plus size={18} />
+          <Plus size={16} />
           チームを追加
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={addTeam} className="bg-white rounded-xl shadow p-5 mb-6 flex flex-col gap-3">
+        <form onSubmit={addTeam} className="bg-white rounded-2xl shadow-lg p-5 mb-6 flex flex-col gap-3 border border-gray-100">
           <h2 className="font-semibold text-gray-700">新しいチームを追加</h2>
           <input
             className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -112,7 +116,7 @@ export default function GroupPage() {
             <Link
               key={team.id}
               href={`/teams/${team.id}`}
-              className="bg-white rounded-xl shadow hover:shadow-md transition p-5 flex items-center justify-between group"
+              className="bg-white rounded-2xl shadow hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 p-5 flex items-center justify-between group border border-gray-100"
             >
               <div>
                 <div className="font-semibold text-gray-800 text-lg">{team.name}</div>
