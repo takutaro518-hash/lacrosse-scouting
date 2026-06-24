@@ -170,7 +170,7 @@ export default function PlayerPage() {
 
   return (
     <div>
-      <Link href={`/teams/${teamId}`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
+      <Link href={`/teams/${teamId}/players`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
         <ChevronLeft size={16} />
         選手一覧に戻る
       </Link>
