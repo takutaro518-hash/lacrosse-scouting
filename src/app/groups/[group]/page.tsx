@@ -67,7 +67,7 @@ export default function GroupPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">Scouting</p>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#0d1b4b' }}>{label}　相手チーム一覧</h1>
+          <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>{label}　相手チーム一覧</h1>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

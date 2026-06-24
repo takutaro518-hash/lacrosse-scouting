@@ -1,5 +1,20 @@
 import type { Metadata } from 'next'
+import { Shippori_Mincho, Noto_Sans_JP } from 'next/font/google'
 import './globals.css'
+
+const mincho = Shippori_Mincho({
+  weight: ['500', '600', '700', '800'],
+  subsets: ['latin'],
+  variable: '--font-mincho',
+  display: 'swap',
+})
+
+const sans = Noto_Sans_JP({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-sans-jp',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'KU Lacrosse Scouting',
@@ -8,15 +23,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={`${mincho.variable} ${sans.variable}`}>
       <body className="min-h-screen" style={{ background: '#f4f5f7' }}>
         <header style={{ background: '#0d1b4b' }} className="shadow-lg">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <img src="/ku-logo.png" alt="KU" className="h-9 w-auto drop-shadow" />
               <div>
-                <div className="text-white font-bold text-base tracking-widest leading-tight">LACROSSE</div>
-                <div className="text-white/50 text-[10px] tracking-[0.2em] uppercase leading-tight">Scouting System</div>
+                <div className="font-mincho text-white font-bold text-lg tracking-[0.2em] leading-tight">LACROSSE</div>
+                <div className="text-white/50 text-[10px] tracking-[0.25em] uppercase leading-tight">Scouting System</div>
               </div>
             </a>
           </div>

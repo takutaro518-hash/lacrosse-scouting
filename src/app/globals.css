@@ -5,9 +5,17 @@
   --foreground: #1a1a2e;
 }
 
+@theme inline {
+  --font-mincho: var(--font-mincho);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans-jp), 'Hiragino Sans', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+.font-mincho {
+  font-family: var(--font-mincho), 'Hiragino Mincho ProN', 'Yu Mincho', serif;
 }

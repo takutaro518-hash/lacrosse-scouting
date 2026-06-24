@@ -183,7 +183,7 @@ export default function TeamPage() {
       </Link>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{team.name}</h1>
+        <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>{team.name}</h1>
         {team.prefecture && <p className="text-sm text-gray-500">{team.prefecture}</p>}
       </div>
 
@@ -192,7 +192,7 @@ export default function TeamPage() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <Shield size={18} className="text-blue-600" />
-            <h2 className="font-bold text-gray-700 text-lg">チームスカウティング</h2>
+            <h2 className="font-mincho font-bold text-gray-700 text-lg tracking-wide">チームスカウティング</h2>
           </div>
           {teamNotes.length > 0 && (
             <button onClick={generateSummary} disabled={summarizing}
@@ -371,7 +371,7 @@ export default function TeamPage() {
 
       {/* 選手一覧 */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-gray-700 text-lg">選手一覧</h2>
+        <h2 className="font-mincho font-bold text-gray-700 text-lg tracking-wide">選手一覧</h2>
         <button onClick={() => setShowPlayerForm(!showPlayerForm)}
           className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
           <Plus size={18} />選手を追加
