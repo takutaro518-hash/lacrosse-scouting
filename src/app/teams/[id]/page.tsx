@@ -178,7 +178,7 @@ export default function TeamPage() {
 
   return (
     <div>
-      <Link href="/" className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
+      <Link href={(team as any).group_name ? `/groups/${(team as any).group_name}` : '/'} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
         <ChevronLeft size={16} />チーム一覧に戻る
       </Link>
 
