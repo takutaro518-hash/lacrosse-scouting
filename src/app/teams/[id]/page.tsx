@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase, Team } from '@/lib/supabase'
-import { ChevronLeft, ChevronRight, Users, Shield } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Swords, ShieldHalf } from 'lucide-react'
 
-export default function TeamBranchPage() {
+export default function TeamOfDfBranchPage() {
   const { id } = useParams<{ id: string }>()
   const [team, setTeam] = useState<Team | null>(null)
   const [loading, setLoading] = useState(true)
@@ -28,39 +28,39 @@ export default function TeamBranchPage() {
       </Link>
 
       <div className="mb-8">
-        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">Scouting Menu</p>
-        <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>{team.name}</h1>
-        {team.prefecture && <p className="text-sm text-gray-500 mt-1">{team.prefecture}</p>}
+        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name}</p>
+        <h1 className="font-mincho text-2xl font-bold tracking-wide" style={{ color: '#0d1b4b' }}>あなたは OF / DF ?</h1>
+        <p className="text-sm text-gray-500 mt-1">スカウティングする立場を選んでください</p>
       </div>
 
-      <div className="flex flex-col gap-4 max-w-2xl">
-        <Link href={`/teams/${id}/players`}
+      <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+        <Link href={`/teams/${id}/of`}
           className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-white border border-gray-100">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ background: '#0d1b4b' }} />
-          <div className="flex items-center gap-5 px-7 py-6">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#0d1b4b' }}>
-              <Users size={26} className="text-white" />
+          <div className="absolute left-0 top-0 right-0 h-1.5 bg-red-500" />
+          <div className="flex flex-col items-center text-center gap-3 px-7 py-8">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-red-500">
+              <Swords size={30} className="text-white" />
             </div>
-            <div className="flex-1">
-              <div className="font-mincho text-lg font-bold tracking-wide" style={{ color: '#0d1b4b' }}>個人スカウティング</div>
-              <div className="text-xs text-gray-400 mt-0.5">ポジション別の選手一覧・個人分析</div>
+            <div>
+              <div className="font-mincho text-xl font-bold tracking-widest text-red-600">OF</div>
+              <div className="text-xs text-gray-400 mt-1">相手DFをスカウティング</div>
             </div>
-            <ChevronRight size={22} className="text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all" />
+            <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-500 transition" />
           </div>
         </Link>
 
-        <Link href={`/teams/${id}/organization`}
+        <Link href={`/teams/${id}/players`}
           className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-white border border-gray-100">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5" style={{ background: '#0d1b4b' }} />
-          <div className="flex items-center gap-5 px-7 py-6">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: '#0d1b4b' }}>
-              <Shield size={26} className="text-white" />
+          <div className="absolute left-0 top-0 right-0 h-1.5 bg-blue-600" />
+          <div className="flex flex-col items-center text-center gap-3 px-7 py-8">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-blue-600">
+              <ShieldHalf size={30} className="text-white" />
             </div>
-            <div className="flex-1">
-              <div className="font-mincho text-lg font-bold tracking-wide" style={{ color: '#0d1b4b' }}>組織スカウティング</div>
-              <div className="text-xs text-gray-400 mt-0.5">かけどころ別のチーム戦術・DF分析</div>
+            <div>
+              <div className="font-mincho text-xl font-bold tracking-widest text-blue-700">DF</div>
+              <div className="text-xs text-gray-400 mt-1">相手OFをスカウティング</div>
             </div>
-            <ChevronRight size={22} className="text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all" />
+            <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-500 transition" />
           </div>
         </Link>
       </div>

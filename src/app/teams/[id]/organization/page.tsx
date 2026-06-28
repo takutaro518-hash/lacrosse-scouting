@@ -172,8 +172,8 @@ export default function OrganizationPage() {
 
   return (
     <div>
-      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
-        <ChevronLeft size={14} />Menu
+      <Link href={`/teams/${id}/of`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
+        <ChevronLeft size={14} />OFメニュー
       </Link>
 
       <div className="mb-6">

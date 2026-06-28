@@ -54,7 +54,7 @@ export default function PlayersListPage() {
   return (
     <div>
       <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
-        <ChevronLeft size={14} />Menu
+        <ChevronLeft size={14} />OF / DF
       </Link>
 
       <div className="flex items-center justify-between mb-6">
