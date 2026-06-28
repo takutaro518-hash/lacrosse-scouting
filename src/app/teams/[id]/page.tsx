@@ -49,7 +49,7 @@ export default function TeamOfDfBranchPage() {
           </div>
         </Link>
 
-        <Link href={`/teams/${id}/players`}
+        <Link href={`/teams/${id}/df`}
           className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 bg-white border border-gray-100">
           <div className="absolute left-0 top-0 right-0 h-1.5 bg-blue-600" />
           <div className="flex flex-col items-center text-center gap-3 px-7 py-8">

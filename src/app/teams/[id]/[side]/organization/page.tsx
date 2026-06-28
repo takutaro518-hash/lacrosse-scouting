@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { supabase, Team, TeamScoutingNote, TeamScoutingVideo } from '@/lib/supabase'
 import { Plus, ChevronLeft, Trash2, Shield, Pencil, Check, X, Video as VideoIcon, ChevronDown, ChevronUp } from 'lucide-react'
 
-const SCOUTING_CATEGORIES = [
+const OF_CATEGORIES = [
   { key: 'ローウィングがけ', color: 'bg-orange-50 border-orange-200 text-orange-700' },
   { key: 'ハイウィングがけ', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
   { key: '裏がけ', color: 'bg-blue-50 border-blue-200 text-blue-700' },
@@ -15,8 +15,21 @@ const SCOUTING_CATEGORIES = [
   { key: 'その他', color: 'bg-gray-50 border-gray-200 text-gray-600' },
 ]
 
+const DF_CATEGORIES = [
+  { key: 'タイガー(222)', color: 'bg-orange-50 border-orange-200 text-orange-700' },
+  { key: 'バッファロー(141)', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+  { key: 'ペンギン(裏2)', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+  { key: '表ツーマン', color: 'bg-green-50 border-green-200 text-green-700' },
+  { key: 'ウルフ', color: 'bg-purple-50 border-purple-200 text-purple-700' },
+  { key: 'イーグル', color: 'bg-pink-50 border-pink-200 text-pink-700' },
+  { key: 'エキマン', color: 'bg-indigo-50 border-indigo-200 text-indigo-700' },
+  { key: 'その他', color: 'bg-gray-50 border-gray-200 text-gray-600' },
+]
+
 export default function OrganizationPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id, side } = useParams<{ id: string; side: string }>()
+  const sideUpper = side === 'df' ? 'DF' : 'OF'
+  const SCOUTING_CATEGORIES = side === 'df' ? DF_CATEGORIES : OF_CATEGORIES
   const [team, setTeam] = useState<Team | null>(null)
   const [teamNotes, setTeamNotes] = useState<TeamScoutingNote[]>([])
   const [teamVideos, setTeamVideos] = useState<TeamScoutingVideo[]>([])
@@ -51,12 +64,12 @@ export default function OrganizationPage() {
   const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { fetchData() }, [id])
+  useEffect(() => { fetchData() }, [id, side])
 
   async function fetchData() {
     const [{ data: teamData }, { data: teamNoteData }, { data: teamVideoData }] = await Promise.all([
       supabase.from('teams').select('*').eq('id', id).single(),
-      supabase.from('team_scouting_notes').select('*').eq('team_id', id).order('match_date', { ascending: false }),
+      supabase.from('team_scouting_notes').select('*').eq('team_id', id).eq('side', sideUpper).order('match_date', { ascending: false }),
       supabase.from('team_scouting_videos').select('*').order('created_at', { ascending: false }),
     ])
     setTeam(teamData)
@@ -76,6 +89,7 @@ export default function OrganizationPage() {
       content: noteContent.trim(),
       scouter: noteScouter.trim() || null,
       category,
+      side: sideUpper,
     }).select().single()
 
     if (noteError) { alert('保存エラー: ' + noteError.message); setUploading(false); return }
@@ -172,12 +186,12 @@ export default function OrganizationPage() {
 
   return (
     <div>
-      <Link href={`/teams/${id}/of`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
-        <ChevronLeft size={14} />OFメニュー
+      <Link href={`/teams/${id}/${side}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
+        <ChevronLeft size={14} />{sideUpper}メニュー
       </Link>
 
       <div className="mb-6">
-        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name}</p>
+        <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name} ・ {sideUpper}</p>
         <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2" style={{ color: '#0d1b4b' }}>
           <Shield size={22} />組織スカウティング
         </h1>

@@ -16,7 +16,8 @@ const POSITION_COLORS: Record<string, string> = {
 }
 
 export default function PlayersListPage() {
-  const { id } = useParams<{ id: string }>()
+  const { id, side } = useParams<{ id: string; side: string }>()
+  const sideUpper = side === 'df' ? 'DF' : 'OF'
   const [team, setTeam] = useState<Team | null>(null)
   const [players, setPlayers] = useState<Player[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,12 +27,12 @@ export default function PlayersListPage() {
   const [number, setNumber] = useState('')
   const [position, setPosition] = useState('')
 
-  useEffect(() => { fetchData() }, [id])
+  useEffect(() => { fetchData() }, [id, side])
 
   async function fetchData() {
     const [{ data: teamData }, { data: playerData }] = await Promise.all([
       supabase.from('teams').select('*').eq('id', id).single(),
-      supabase.from('players').select('*').eq('team_id', id).order('position').order('number'),
+      supabase.from('players').select('*').eq('team_id', id).eq('side', sideUpper).order('position').order('number'),
     ])
     setTeam(teamData)
     setPlayers(playerData ?? [])
@@ -41,7 +42,7 @@ export default function PlayersListPage() {
   async function addPlayer(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    await supabase.from('players').insert({ team_id: id, name: name.trim(), number: number.trim() || null, position: position || null })
+    await supabase.from('players').insert({ team_id: id, name: name.trim(), number: number.trim() || null, position: position || null, side: sideUpper })
     setName(''); setNumber(''); setPosition(''); setShowPlayerForm(false); fetchData()
   }
 
@@ -53,13 +54,13 @@ export default function PlayersListPage() {
 
   return (
     <div>
-      <Link href={`/teams/${id}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
-        <ChevronLeft size={14} />OF / DF
+      <Link href={`/teams/${id}/${side}`} className="flex items-center gap-1 text-xs tracking-wider text-gray-400 hover:text-gray-600 mb-6 transition uppercase">
+        <ChevronLeft size={14} />{sideUpper}メニュー
       </Link>
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name}</p>
+          <p className="text-[10px] tracking-[0.3em] text-gray-400 uppercase mb-1">{team.name} ・ {sideUpper}</p>
           <h1 className="font-mincho text-2xl font-bold tracking-wide flex items-center gap-2" style={{ color: '#0d1b4b' }}>
             <Users size={22} />個人スカウティング
           </h1>
@@ -109,7 +110,7 @@ export default function PlayersListPage() {
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {group.map(player => (
-                    <Link key={player.id} href={`/teams/${id}/players/${player.id}`}
+                    <Link key={player.id} href={`/teams/${id}/${side}/players/${player.id}`}
                       className="bg-white rounded-xl shadow hover:shadow-md transition p-4 flex items-center gap-3 group">
                       <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                         {player.photo_url ? <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />

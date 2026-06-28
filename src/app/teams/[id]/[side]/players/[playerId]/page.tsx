@@ -14,7 +14,7 @@ const POSITION_COLORS: Record<string, string> = {
 }
 
 export default function PlayerPage() {
-  const { id: teamId, playerId } = useParams<{ id: string; playerId: string }>()
+  const { id: teamId, playerId, side } = useParams<{ id: string; playerId: string; side: string }>()
   const [player, setPlayer] = useState<Player | null>(null)
   const [notes, setNotes] = useState<ScoutingNote[]>([])
   const [videos, setVideos] = useState<Video[]>([])
@@ -170,7 +170,7 @@ export default function PlayerPage() {
 
   return (
     <div>
-      <Link href={`/teams/${teamId}/players`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
+      <Link href={`/teams/${teamId}/${side}/players`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
         <ChevronLeft size={16} />
         選手一覧に戻る
       </Link>
