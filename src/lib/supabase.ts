@@ -45,6 +45,7 @@ export type Video = {
   id: string
   player_id: string
   scouting_note_id: string | null
+  category: string | null
   title: string | null
   storage_path: string
   created_at: string

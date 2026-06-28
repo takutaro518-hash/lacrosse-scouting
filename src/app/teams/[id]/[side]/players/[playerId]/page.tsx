@@ -49,6 +49,11 @@ export default function PlayerPage() {
   const [pOnball, setPOnball] = useState('')
   const [pOffball, setPOffball] = useState('')
   const [pShot, setPShot] = useState('')
+  const [dfVideoCat, setDfVideoCat] = useState<string | null>(null)
+  const [dfVideoFile, setDfVideoFile] = useState<File | null>(null)
+  const [dfVideoTitle, setDfVideoTitle] = useState('')
+  const [dfVideoUploading, setDfVideoUploading] = useState(false)
+  const dfVideoRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchData()
@@ -164,6 +169,24 @@ export default function PlayerPage() {
     fetchData()
   }
 
+  async function addDfVideo(category: string) {
+    if (!dfVideoFile) return
+    setDfVideoUploading(true)
+    const ext = dfVideoFile.name.split('.').pop()
+    const path = `videos/${playerId}/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('scouting-media').upload(path, dfVideoFile)
+    if (error) {
+      alert('動画アップロードエラー: ' + error.message)
+    } else {
+      const { error: ie } = await supabase.from('videos').insert({
+        player_id: playerId, scouting_note_id: null, category,
+        title: dfVideoTitle.trim() || null, storage_path: path,
+      })
+      if (ie) alert('動画保存エラー: ' + ie.message)
+    }
+    setDfVideoFile(null); setDfVideoTitle(''); setDfVideoCat(null); setDfVideoUploading(false); fetchData()
+  }
+
   async function addPlayVideo(e: React.FormEvent) {
     e.preventDefault()
     if (!playVideoFile) return
@@ -241,22 +264,61 @@ export default function PlayerPage() {
   )
 
   if (side === 'df') {
-    const field = (label: string, saved: string | null, value: string, set: (v: string) => void, placeholder: string, big = false) => (
-      <div className="bg-white rounded-xl shadow p-4">
-        <div className="text-xs font-bold text-gray-500 mb-2 tracking-wide">{label}</div>
-        {editProfile ? (
-          big ? (
-            <textarea className="border rounded-lg px-3 py-2 text-sm w-full min-h-[70px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
+    const field = (label: string, saved: string | null, value: string, set: (v: string) => void, placeholder: string, big = false, videoCat?: string) => {
+      const catVideos = videoCat ? videos.filter(v => v.category === videoCat) : []
+      return (
+        <div className="bg-white rounded-xl shadow p-4">
+          <div className="text-xs font-bold text-gray-500 mb-2 tracking-wide">{label}</div>
+          {editProfile ? (
+            big ? (
+              <textarea className="border rounded-lg px-3 py-2 text-sm w-full min-h-[70px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
+            ) : (
+              <input className="border rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
+            )
           ) : (
-            <input className="border rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
-          )
-        ) : (
-          <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{saved || <span className="text-gray-300">未記入</span>}</p>
-        )}
-      </div>
-    )
+            <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{saved || <span className="text-gray-300">未記入</span>}</p>
+          )}
+
+          {videoCat && (
+            <div className="mt-3 flex flex-col gap-2">
+              {catVideos.map(v => (
+                <div key={v.id} className="bg-gray-50 rounded-lg overflow-hidden">
+                  {v.title && <div className="text-xs font-medium text-gray-600 px-3 pt-2">{v.title}</div>}
+                  <video src={getVideoUrl(v.storage_path)} controls className="w-full max-h-64 bg-black" preload="metadata" />
+                  <div className="flex justify-end px-3 pb-2">
+                    <button onClick={() => deleteVideo(v)} className="text-xs text-red-400 hover:text-red-600 flex items-center gap-1 transition"><Trash2 size={12} />削除</button>
+                  </div>
+                </div>
+              ))}
+              {dfVideoCat === videoCat ? (
+                <div className="bg-gray-50 rounded-lg p-3 flex flex-col gap-2">
+                  <input type="file" accept="video/*" ref={dfVideoRef} onChange={e => setDfVideoFile(e.target.files?.[0] ?? null)} className="text-sm" />
+                  {dfVideoFile && (
+                    <input className="border rounded-lg px-3 py-1.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      placeholder="動画タイトル（任意）" value={dfVideoTitle} onChange={e => setDfVideoTitle(e.target.value)} />
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={() => addDfVideo(videoCat)} disabled={!dfVideoFile || dfVideoUploading}
+                      className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-700 transition disabled:opacity-50">
+                      {dfVideoUploading ? 'アップロード中...' : '追加'}
+                    </button>
+                    <button onClick={() => { setDfVideoCat(null); setDfVideoFile(null); setDfVideoTitle('') }}
+                      className="px-3 py-1.5 rounded-lg text-xs border hover:bg-gray-100 transition">キャンセル</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => { setDfVideoCat(videoCat); setDfVideoFile(null); setDfVideoTitle('') }}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500 transition w-fit">
+                  <Plus size={13} />動画を追加
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )
+    }
 
     return (
       <div>
@@ -301,9 +363,9 @@ export default function PlayerPage() {
             {field('身長', player.height, pHeight, setPHeight, '例：175cm')}
           </div>
           {field('特徴', player.feature, pFeature, setPFeature, 'その他の特徴を記入...', true)}
-          {field('オンボール', player.onball, pOnball, setPOnball, '1on1の傾向、抜き方、武器など...', true)}
-          {field('オフボール', player.offball, pOffball, setPOffball, 'カットイン、ピック、動きの特徴など...', true)}
-          {field('ショット', player.shot, pShot, setPShot, 'シュートコース、得意な形、注意点など...', true)}
+          {field('オンボール', player.onball, pOnball, setPOnball, '1on1の傾向、抜き方、武器など...', true, 'オンボール')}
+          {field('オフボール', player.offball, pOffball, setPOffball, 'カットイン、ピック、動きの特徴など...', true, 'オフボール')}
+          {field('ショット', player.shot, pShot, setPShot, 'シュートコース、得意な形、注意点など...', true, 'ショット')}
         </div>
       </div>
     )
