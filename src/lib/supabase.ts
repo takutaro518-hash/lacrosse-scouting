@@ -20,6 +20,14 @@ export type Player = {
   number: string | null
   position: string | null
   photo_url: string | null
+  side: string | null
+  dominant_hand: string | null
+  height: string | null
+  feature: string | null
+  onball: string | null
+  offball: string | null
+  shot: string | null
+  threat: number | null
   created_at: string
 }
 

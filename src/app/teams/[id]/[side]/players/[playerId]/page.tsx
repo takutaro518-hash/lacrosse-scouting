@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { supabase, Player, ScoutingNote, Video } from '@/lib/supabase'
-import { ChevronLeft, Plus, Video as VideoIcon, FileText, Trash2, User, Pencil, Check, X } from 'lucide-react'
+import { ChevronLeft, Plus, Video as VideoIcon, FileText, Trash2, User, Pencil, Check, X, Star } from 'lucide-react'
 
 const POSITION_COLORS: Record<string, string> = {
   AT: 'bg-red-100 text-red-700',
@@ -39,6 +39,16 @@ export default function PlayerPage() {
   const [editingDate, setEditingDate] = useState('')
   const [editingContent, setEditingContent] = useState('')
   const [editingScouter, setEditingScouter] = useState('')
+
+  // DF profile editing
+  const [editProfile, setEditProfile] = useState(false)
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [pHand, setPHand] = useState('')
+  const [pHeight, setPHeight] = useState('')
+  const [pFeature, setPFeature] = useState('')
+  const [pOnball, setPOnball] = useState('')
+  const [pOffball, setPOffball] = useState('')
+  const [pShot, setPShot] = useState('')
 
   useEffect(() => {
     fetchData()
@@ -122,6 +132,38 @@ export default function PlayerPage() {
     setPhotoUploading(false)
   }
 
+  function startEditProfile() {
+    if (!player) return
+    setPHand(player.dominant_hand ?? '')
+    setPHeight(player.height ?? '')
+    setPFeature(player.feature ?? '')
+    setPOnball(player.onball ?? '')
+    setPOffball(player.offball ?? '')
+    setPShot(player.shot ?? '')
+    setEditProfile(true)
+  }
+
+  async function saveProfile() {
+    setSavingProfile(true)
+    await supabase.from('players').update({
+      dominant_hand: pHand.trim() || null,
+      height: pHeight.trim() || null,
+      feature: pFeature.trim() || null,
+      onball: pOnball.trim() || null,
+      offball: pOffball.trim() || null,
+      shot: pShot.trim() || null,
+    }).eq('id', playerId)
+    setEditProfile(false)
+    setSavingProfile(false)
+    fetchData()
+  }
+
+  async function setThreat(n: number) {
+    const newVal = player?.threat === n ? null : n
+    await supabase.from('players').update({ threat: newVal }).eq('id', playerId)
+    fetchData()
+  }
+
   async function addPlayVideo(e: React.FormEvent) {
     e.preventDefault()
     if (!playVideoFile) return
@@ -164,6 +206,108 @@ export default function PlayerPage() {
 
   if (loading) return <div className="text-center py-12 text-gray-400">読み込み中...</div>
   if (!player) return <div className="text-center py-12 text-red-400">選手が見つかりません</div>
+
+  const photoHeader = (
+    <div className="bg-white rounded-xl shadow mb-6 overflow-hidden">
+      <div className="relative w-full h-56 bg-gray-100 flex items-center justify-center">
+        {player.photo_url ? (
+          <img src={player.photo_url} alt={player.name} className="w-full h-full object-contain" />
+        ) : (
+          <User size={72} className="text-gray-300" />
+        )}
+        <button
+          onClick={() => photoRef.current?.click()}
+          disabled={photoUploading}
+          className="absolute bottom-3 right-3 bg-blue-600 text-white rounded-full px-3 py-1.5 text-xs flex items-center gap-1 hover:bg-blue-700 transition disabled:opacity-50 shadow"
+        >
+          <Pencil size={11} />
+          {player.photo_url ? '写真を変更' : '写真を追加'}
+        </button>
+        <input type="file" accept="image/*" ref={photoRef} className="hidden"
+          onChange={e => { const f = e.target.files?.[0]; if (f) uploadPhoto(f) }} />
+      </div>
+      <div className="p-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          {player.number && <span className="text-blue-500 font-bold text-lg">#{player.number}</span>}
+          <h1 className="text-2xl font-bold text-gray-800">{player.name}</h1>
+          {player.position && (
+            <span className={`text-sm px-2 py-0.5 rounded font-semibold ${POSITION_COLORS[player.position] ?? 'bg-gray-100 text-gray-600'}`}>
+              {player.position}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  if (side === 'df') {
+    const field = (label: string, saved: string | null, value: string, set: (v: string) => void, placeholder: string, big = false) => (
+      <div className="bg-white rounded-xl shadow p-4">
+        <div className="text-xs font-bold text-gray-500 mb-2 tracking-wide">{label}</div>
+        {editProfile ? (
+          big ? (
+            <textarea className="border rounded-lg px-3 py-2 text-sm w-full min-h-[70px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
+          ) : (
+            <input className="border rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder={placeholder} value={value} onChange={e => set(e.target.value)} />
+          )
+        ) : (
+          <p className="text-gray-700 text-sm whitespace-pre-wrap leading-relaxed">{saved || <span className="text-gray-300">未記入</span>}</p>
+        )}
+      </div>
+    )
+
+    return (
+      <div>
+        <Link href={`/teams/${teamId}/${side}/players`} className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-600 mb-4 transition">
+          <ChevronLeft size={16} />選手一覧に戻る
+        </Link>
+
+        {photoHeader}
+
+        {/* 脅威 */}
+        <div className="bg-white rounded-xl shadow p-4 mb-4 flex items-center justify-between">
+          <span className="text-sm font-bold text-gray-600">脅威</span>
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button key={n} onClick={() => setThreat(n)} className="transition hover:scale-110">
+                <Star size={26} className={n <= (player.threat ?? 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 編集ボタン */}
+        <div className="flex justify-end mb-3">
+          {editProfile ? (
+            <div className="flex gap-2">
+              <button onClick={saveProfile} disabled={savingProfile}
+                className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition disabled:opacity-50">
+                <Check size={15} />{savingProfile ? '保存中...' : '保存'}
+              </button>
+              <button onClick={() => setEditProfile(false)} className="px-4 py-2 rounded-lg text-sm border hover:bg-gray-50 transition">キャンセル</button>
+            </div>
+          ) : (
+            <button onClick={startEditProfile} className="flex items-center gap-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200 transition">
+              <Pencil size={14} />編集
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            {field('利き手', player.dominant_hand, pHand, setPHand, '右 / 左')}
+            {field('身長', player.height, pHeight, setPHeight, '例：175cm')}
+          </div>
+          {field('特徴', player.feature, pFeature, setPFeature, 'その他の特徴を記入...', true)}
+          {field('オンボール', player.onball, pOnball, setPOnball, '1on1の傾向、抜き方、武器など...', true)}
+          {field('オフボール', player.offball, pOffball, setPOffball, 'カットイン、ピック、動きの特徴など...', true)}
+          {field('ショット', player.shot, pShot, setPShot, 'シュートコース、得意な形、注意点など...', true)}
+        </div>
+      </div>
+    )
+  }
 
   const videosForNote = (noteId: string) => videos.filter(v => v.scouting_note_id === noteId)
   const unlinkedVideos = videos.filter(v => !v.scouting_note_id)
