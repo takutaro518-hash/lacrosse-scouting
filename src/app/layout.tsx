@@ -18,7 +18,7 @@ const sans = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: 'KU Lacrosse Scouting',
-  description: '関西大学ラクロス部 スカウティングシステム',
+  description: '慶應義塾大学ラクロス部 スカウティングシステム',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
