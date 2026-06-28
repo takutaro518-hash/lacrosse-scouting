@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Shippori_Mincho, Noto_Sans_JP } from 'next/font/google'
 import './globals.css'
+import AuthGate from './AuthGate'
+import LogoutButton from './LogoutButton'
 
 const mincho = Shippori_Mincho({
   weight: ['500', '600', '700', '800'],
@@ -34,9 +36,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="text-white/50 text-[10px] tracking-[0.25em] uppercase leading-tight">Scouting System</div>
               </div>
             </a>
+            <LogoutButton />
           </div>
         </header>
-        <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
+        <main className="max-w-5xl mx-auto px-4 py-6">
+          <AuthGate>{children}</AuthGate>
+        </main>
       </body>
     </html>
   )
